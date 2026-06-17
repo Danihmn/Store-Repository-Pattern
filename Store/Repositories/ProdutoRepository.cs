@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Store.Data;
 using Store.Models;
+using Store.Repositories.Abstractions;
 
 namespace Store.Repositories;
 
-public class ProdutoRepository (StoreContext context)
+public class ProdutoRepository (StoreContext context) : IProductRepository
 {
     public async Task<List<Produto>?> GetAllAsync (int skip = 0, int take = 10, CancellationToken cancellationToken = default)
         => await context.Produtos
@@ -34,11 +35,12 @@ public class ProdutoRepository (StoreContext context)
         return produto;
     }
 
-    public async Task<Produto> DeleteAsync (Produto produto, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync (Guid id, CancellationToken cancellationToken = default)
     {
+        var produto = await context.Produtos.FindAsync([id], cancellationToken: cancellationToken)
+            ?? throw new KeyNotFoundException("Produto not found");
+
         context.Remove(produto);
         await context.SaveChangesAsync(cancellationToken);
-
-        return produto;
     }
 }
