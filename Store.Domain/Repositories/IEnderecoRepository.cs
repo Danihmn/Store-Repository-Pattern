@@ -2,4 +2,4 @@
 
 namespace Store.Domain.Repositories;
 
-interface IEnderecoRepository : IRepository<Endereco>;
+public interface IEnderecoRepository : IRepository<Endereco>;

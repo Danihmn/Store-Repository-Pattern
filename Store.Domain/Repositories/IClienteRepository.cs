@@ -2,4 +2,4 @@
 
 namespace Store.Domain.Repositories;
 
-interface IClienteRepository : IRepository<Cliente>;
+public interface IClienteRepository : IRepository<Cliente>;

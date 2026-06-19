@@ -2,4 +2,4 @@
 
 namespace Store.Domain.Repositories;
 
-interface IProdutoPedidoRepository : IRepository<ProdutoPedido>;
+public interface IProdutoPedidoRepository : IRepository<ProdutoPedido>;

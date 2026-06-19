@@ -2,4 +2,4 @@
 
 namespace Store.Domain.Repositories;
 
-interface ILojaRepository : IRepository<Loja>;
+public interface ILojaRepository : IRepository<Loja>;

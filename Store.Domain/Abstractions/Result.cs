@@ -34,10 +34,7 @@ public class Result<T> : Result
         : throw new InvalidOperationException("Não é possível acessar o valor de um resultado de falha.");
 
     protected internal Result (T? value, bool isSuccess, Error? error)
-        : base(isSuccess, error)
-    {
-        _value = value;
-    }
+        : base(isSuccess, error) => _value = value;
 
     public static implicit operator Result<T> (T value) => Success(value);
 }
