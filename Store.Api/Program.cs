@@ -17,12 +17,12 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.MapOpenApi();
-app.MapProdutoEndpoints();
-app.MapClienteEndpoints();
-app.MapEnderecoEndpoints();
-app.MapLojaEndpoints();
-app.MapPedidoEndpoints();
-app.MapProdutoPedidoEndpoints();
+app.MapProductEndpoints();
+app.MapCustomerEndpoints();
+app.MapAddressEndpoints();
+app.MapStoreEndpoints();
+app.MapOrderEndpoints();
+app.MapOrderProductEndpoints();
 
 app.MapScalarApiReference("/scalar", options =>
 {

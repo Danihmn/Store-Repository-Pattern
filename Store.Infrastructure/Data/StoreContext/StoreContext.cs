@@ -1,16 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Store.Domain.Entities;
 
 namespace Store.Infrastructure.Data.StoreContext;
 
 public class StoreContext (DbContextOptions<StoreContext> options) : DbContext(options)
 {
-    public virtual DbSet<Cliente> Clientes { get; set; }
-    public virtual DbSet<Endereco> Enderecos { get; set; }
-    public virtual DbSet<Loja> Lojas { get; set; }
-    public virtual DbSet<Pedido> Pedidos { get; set; }
-    public virtual DbSet<Produto> Produtos { get; set; }
-    public virtual DbSet<ProdutoPedido> ProdutosPedidos { get; set; }
+    public virtual DbSet<Customer> Customers { get; set; }
+    public virtual DbSet<Address> Addresses { get; set; }
+    public virtual DbSet<Store.Domain.Entities.Store> Stores { get; set; }
+    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<OrderProduct> OrderProducts { get; set; }
 
     protected override void OnConfiguring (DbContextOptionsBuilder optionsBuilder)
     {

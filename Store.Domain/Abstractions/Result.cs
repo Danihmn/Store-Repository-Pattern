@@ -1,4 +1,4 @@
-﻿namespace Store.Domain.Abstractions;
+namespace Store.Domain.Abstractions;
 
 public class Result
 {
@@ -9,10 +9,10 @@ public class Result
     protected Result (bool isSuccess, Error? error)
     {
         if (isSuccess && error is not null)
-            throw new InvalidOperationException("Um resultado de sucesso não pode conter erro.");
+            throw new InvalidOperationException("A success result cannot contain an error.");
 
         if (!isSuccess && error is null)
-            throw new InvalidOperationException("Um resultado de falha precisa conter um erro.");
+            throw new InvalidOperationException("A failure result must contain an error.");
 
         IsSuccess = isSuccess;
         Error = error;
@@ -31,7 +31,7 @@ public class Result<T> : Result
 
     public T Value => IsSuccess
         ? _value!
-        : throw new InvalidOperationException("Não é possível acessar o valor de um resultado de falha.");
+        : throw new InvalidOperationException("Cannot access the value of a failure result.");
 
     protected internal Result (T? value, bool isSuccess, Error? error)
         : base(isSuccess, error) => _value = value;

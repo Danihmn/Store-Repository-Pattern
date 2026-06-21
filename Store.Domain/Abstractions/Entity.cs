@@ -1,8 +1,8 @@
-﻿namespace Store.Domain.Abstractions;
+namespace Store.Domain.Abstractions;
 
 public abstract class Entity
 {
     public Guid Id { get; set; }
-    public DateTime? CriadoEm { get; set; }
-    public DateTime? AtualizadoEm { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

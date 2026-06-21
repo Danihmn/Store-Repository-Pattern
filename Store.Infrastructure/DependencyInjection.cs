@@ -8,12 +8,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure (this IServiceCollection services)
     {
-        services.AddTransient<IClienteRepository, ClienteRepository>();
-        services.AddTransient<IProdutoRepository, ProdutoRepository>();
-        services.AddTransient<IEnderecoRepository, EnderecoRepository>();
-        services.AddTransient<ILojaRepository, LojaRepository>();
-        services.AddTransient<IPedidoRepository, PedidoRepository>();
-        services.AddTransient<IProdutoPedidoRepository, ProdutoPedidoRepository>();
+        services.AddTransient<ICustomerRepository, CustomerRepository>();
+        services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddTransient<IAddressRepository, AddressRepository>();
+        services.AddTransient<IStoreRepository, StoreRepository>();
+        services.AddTransient<IOrderRepository, OrderRepository>();
+        services.AddTransient<IOrderProductRepository, OrderProductRepository>();
 
         return services;
     }
