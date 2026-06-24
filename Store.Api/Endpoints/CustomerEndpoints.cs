@@ -13,35 +13,35 @@ public static class CustomerEndpoints
     {
         var group = app.MapGroup("/customers");
 
-        group.MapGet("", async (ISender sender, CancellationToken ct, int skip = 0, int take = 10) =>
+        group.MapGet("", async (ISender sender, CancellationToken cancellationToken, int skip = 0, int take = 10) =>
         {
-            var result = await sender.Send(new GetAll.Command(skip, take), ct);
+            var result = await sender.Send(new GetAll.Command(skip, take), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        group.MapGet("{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+        group.MapGet("{id:Guid}", async (Guid id, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(new GetById.Command(id), ct);
+            var result = await sender.Send(new GetById.Command(id), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        group.MapPost("", async (Create.Command command, ISender sender, CancellationToken ct) =>
+        group.MapPost("", async (Create.Command command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(command, ct);
+            var result = await sender.Send(command, cancellationToken);
             return result.IsSuccess
                 ? Results.Created($"/customers/{result.Value.Id}", result.Value)
                 : Results.BadRequest(result.Error);
         });
 
-        group.MapPut("{id:guid}", async (Guid id, Update.Command command, ISender sender, CancellationToken ct) =>
+        group.MapPut("{id:Guid}", async (Guid id, Update.Command command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(command with { Id = id }, ct);
+            var result = await sender.Send(command with { Id = id }, cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        group.MapDelete("{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+        group.MapDelete("{id:Guid}", async (Guid id, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(new Delete.Command(id), ct);
+            var result = await sender.Send(new Delete.Command(id), cancellationToken);
             return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
         });
     }

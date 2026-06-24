@@ -10,31 +10,33 @@ public static class OrderProductEndpoints
 {
     public static void MapOrderProductEndpoints (this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/orders/{orderId:guid}/items");
+        var group = app.MapGroup("/orders/{orderId:Guid}/items");
 
-        group.MapGet("", async (Guid orderId, ISender sender, CancellationToken ct) =>
+        group.MapGet("", async (Guid orderId, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(new GetByOrderId.Command(orderId), ct);
+            var result = await sender.Send(new GetByOrderId.Command(orderId), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        group.MapPost("", async (Guid orderId, Create.Command command, ISender sender, CancellationToken ct) =>
+        group.MapPost("", async (Guid orderId, Create.Command command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(command with { OrderId = orderId }, ct);
+            var result = await sender.Send(command with { OrderId = orderId }, cancellationToken);
             return result.IsSuccess
                 ? Results.Created($"/orders/{orderId}/items/{result.Value.ProductId}", result.Value)
                 : Results.BadRequest(result.Error);
         });
 
-        group.MapPut("{productId:guid}", async (Guid orderId, Guid productId, Update.Command command, ISender sender, CancellationToken ct) =>
+        group.MapPut("{productId:Guid}", async
+            (Guid orderId, Guid productId, Update.Command command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(command with { OrderId = orderId, ProductId = productId }, ct);
+            var result = await sender.Send(command with { OrderId = orderId, ProductId = productId }, cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        group.MapDelete("{productId:guid}", async (Guid orderId, Guid productId, ISender sender, CancellationToken ct) =>
+        group.MapDelete("{productId:Guid}", async
+            (Guid orderId, Guid productId, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(new Delete.Command(orderId, productId), ct);
+            var result = await sender.Send(new Delete.Command(orderId, productId), cancellationToken);
             return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
         });
     }
