@@ -3,4 +3,5 @@
   <Project Path="Store.Application/Store.Application.csproj" />
   <Project Path="Store.Domain/Store.Domain.csproj" />
   <Project Path="Store.Infrastructure/Store.Infrastructure.csproj" />
+  <Project Path="Store.Test/Store.Test.csproj" />
 </Solution>
