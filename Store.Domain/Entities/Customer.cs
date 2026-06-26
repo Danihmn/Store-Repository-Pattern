@@ -8,8 +8,14 @@ public class Customer : Entity
     public string Email { get; private set; } = null!;
     public string? Phone { get; private set; }
 
-    public Customer (string name, string email, string? phone)
+    public Customer (string name, string email, string? phone = null)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidOperationException("Name cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || !email.Contains('.'))
+            throw new InvalidOperationException("Invalid email");
+
         Name = name;
         Email = email;
         Phone = phone;
@@ -20,6 +26,12 @@ public class Customer : Entity
 
     public void UpdateCustomer (string? name = null, string? email = null, string? phone = null)
     {
+        if (name != null && string.IsNullOrWhiteSpace(name))
+            throw new InvalidOperationException("Name cannot be empty");
+
+        if (email != null && (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || !email.Contains('.')))
+            throw new InvalidOperationException("Invalid email");
+
         Name = name ?? Name;
         Email = email ?? Email;
         Phone = phone ?? Phone;

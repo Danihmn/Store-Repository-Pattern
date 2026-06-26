@@ -11,6 +11,18 @@ public class Address : Entity
 
     public Address (string street, string city, string state, string zipCode)
     {
+        if (string.IsNullOrWhiteSpace(street))
+            throw new InvalidOperationException("Street cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(city))
+            throw new InvalidOperationException("City cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(state))
+            throw new InvalidOperationException("State cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(zipCode))
+            throw new InvalidOperationException("ZipCode cannot be empty");
+
         Street = street;
         City = city;
         State = state;
@@ -23,6 +35,18 @@ public class Address : Entity
 
     public void UpdateAddress (string? street = null, string? city = null, string? state = null, string? zipCode = null)
     {
+        if (street != null && string.IsNullOrWhiteSpace(street))
+            throw new InvalidOperationException("Street cannot be empty");
+
+        if (city != null && string.IsNullOrWhiteSpace(city))
+            throw new InvalidOperationException("City cannot be empty");
+
+        if (state != null && string.IsNullOrWhiteSpace(state))
+            throw new InvalidOperationException("State cannot be empty");
+
+        if (zipCode != null && string.IsNullOrWhiteSpace(zipCode))
+            throw new InvalidOperationException("ZipCode cannot be empty");
+
         Street = street ?? Street;
         City = city ?? City;
         State = state ?? State;
