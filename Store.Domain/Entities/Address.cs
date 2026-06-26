@@ -30,7 +30,6 @@ public class Address : Entity
 
         base.CreatedAt = DateTime.UtcNow;
         base.UpdatedAt = DateTime.UtcNow;
-        base.Id = Guid.NewGuid();
     }
 
     public void UpdateAddress (string? street = null, string? city = null, string? state = null, string? zipCode = null)

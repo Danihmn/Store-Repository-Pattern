@@ -1,24 +1,19 @@
 using Store.Domain.Abstractions;
+using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
 
 public class Customer : Entity
 {
     public string Name { get; private set; } = null!;
-    public string Email { get; private set; } = null!;
-    public string? Phone { get; private set; }
+    public Email Email { get; private set; } = null!;
+    public Phone Phone { get; private set; }
 
-    public Customer (string name, string email, string? phone = null)
+    public Customer (string name, string email, string phone)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new InvalidOperationException("Name cannot be empty");
-
-        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || !email.Contains('.'))
-            throw new InvalidOperationException("Invalid email");
-
         Name = name;
-        Email = email;
-        Phone = phone;
+        Email = new Email(email);
+        Phone = new Phone(phone);
 
         base.CreatedAt = DateTime.UtcNow;
         base.UpdatedAt = DateTime.UtcNow;
@@ -33,8 +28,8 @@ public class Customer : Entity
             throw new InvalidOperationException("Invalid email");
 
         Name = name ?? Name;
-        Email = email ?? Email;
-        Phone = phone ?? Phone;
+        Email = email != null ? new Email(email) : Email;
+        Phone = phone != null ? new Phone(phone) : Phone;
 
         base.UpdatedAt = DateTime.UtcNow;
     }
