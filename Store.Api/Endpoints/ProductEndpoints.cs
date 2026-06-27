@@ -11,7 +11,7 @@ public static class ProductEndpoints
 {
     public static void MapProductEndpoints (this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/products");
+        var group = app.MapGroup("/products").WithTags("Products");
 
         group.MapGet("", async (ISender sender, CancellationToken cancellationToken, int skip = 0, int take = 10) =>
         {

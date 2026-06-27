@@ -11,7 +11,7 @@ public static class AddressEndpoints
 {
     public static void MapAddressEndpoints (this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/addresses");
+        var group = app.MapGroup("/addresses").WithTags("Addresses");
 
         group.MapGet("", async (ISender sender, CancellationToken cancellationToken, int skip = 0, int take = 10) =>
         {

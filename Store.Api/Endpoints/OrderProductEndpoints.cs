@@ -10,7 +10,7 @@ public static class OrderProductEndpoints
 {
     public static void MapOrderProductEndpoints (this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/orders/{orderId:Guid}/items");
+        var group = app.MapGroup("/orders/{orderId:Guid}/items").WithTags("Order Items");
 
         group.MapGet("", async (Guid orderId, ISender sender, CancellationToken cancellationToken) =>
         {
