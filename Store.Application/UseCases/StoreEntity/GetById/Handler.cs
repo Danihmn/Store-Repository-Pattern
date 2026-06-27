@@ -19,7 +19,7 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
             UpdatedAt: store.UpdatedAt,
             LegalName: store.LegalName,
             TradeName: store.TradeName,
-            Cnpj: store.Cnpj,
+            Cnpj: store.Cnpj.Value,
             Active: store.Active,
             AddressId: store.AddressId));
     }

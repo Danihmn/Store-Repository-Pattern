@@ -17,8 +17,8 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
             Id: order.Id,
             CreatedAt: order.CreatedAt,
             UpdatedAt: order.UpdatedAt,
-            Status: order.Status,
-            Total: order.Total,
+            Status: order.Status.Value.ToString(),
+            Total: order.Total.Value,
             CustomerId: order.CustomerId,
             AddressId: order.AddressId));
     }

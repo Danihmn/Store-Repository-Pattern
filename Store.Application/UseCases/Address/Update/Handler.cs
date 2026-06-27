@@ -13,11 +13,7 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
         if (address is null)
             return Result.Failure<Response>(new Error("404", "Address not found"));
 
-        address.Street = request.Street;
-        address.City = request.City;
-        address.State = request.State;
-        address.ZipCode = request.ZipCode;
-        address.UpdatedAt = DateTime.UtcNow;
+        address.UpdateAddress(request.Street, request.City, request.State, request.ZipCode);
 
         var updated = await repository.UpdateAsync(address, cancellationToken);
 

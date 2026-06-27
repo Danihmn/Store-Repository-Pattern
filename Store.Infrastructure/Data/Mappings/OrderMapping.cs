@@ -29,7 +29,7 @@ public class OrderMapping : IEntityTypeConfiguration<Order>
             .HasColumnName("address_id");
         builder.Property(e => e.Status)
             .HasMaxLength(20)
-            .HasDefaultValueSql("'pendente'::character varying")
+            .HasDefaultValueSql("'pending'::character varying")
             .HasColumnName("status");
         builder.Property(e => e.Total)
             .HasPrecision(10, 2)

@@ -8,15 +8,13 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var store = new Store.Domain.Entities.Store
-        {
-            LegalName = request.LegalName,
-            TradeName = request.TradeName,
-            Cnpj = request.Cnpj,
-            Active = request.Active,
-            AddressId = request.AddressId,
-            CreatedAt = DateTime.UtcNow
-        };
+        var store = new Store.Domain.Entities.Store(
+            request.LegalName,
+            request.Cnpj,
+            request.AddressId,
+            request.TradeName,
+            request.Active);
+
 
         var created = await repository.CreateAsync(store, cancellationToken);
 
@@ -26,7 +24,7 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
             UpdatedAt: created.UpdatedAt,
             LegalName: created.LegalName,
             TradeName: created.TradeName,
-            Cnpj: created.Cnpj,
+            Cnpj: created.Cnpj.Value,
             Active: created.Active,
             AddressId: created.AddressId));
     }

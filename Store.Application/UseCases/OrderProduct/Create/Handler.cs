@@ -8,13 +8,7 @@ public sealed class Handler (IOrderProductRepository repository) : IRequestHandl
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var item = new Store.Domain.Entities.OrderProduct
-        {
-            OrderId = request.OrderId,
-            ProductId = request.ProductId,
-            Quantity = request.Quantity
-        };
-
+        var item = new Store.Domain.Entities.OrderProduct(request.OrderId, request.ProductId, request.Quantity);
         var created = await repository.CreateAsync(item, cancellationToken);
 
         return Result.Success(new Response(

@@ -13,15 +13,15 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
         if (stores is null || !stores.Any())
             return Result.Failure<IEnumerable<Response>>(new Error("404", "No stores found"));
 
-        var responses = stores.Select(s => new Response(
-            Id: s.Id,
-            CreatedAt: s.CreatedAt,
-            UpdatedAt: s.UpdatedAt,
-            LegalName: s.LegalName,
-            TradeName: s.TradeName,
-            Cnpj: s.Cnpj,
-            Active: s.Active,
-            AddressId: s.AddressId));
+        var responses = stores.Select(store => new Response(
+            Id: store.Id,
+            CreatedAt: store.CreatedAt,
+            UpdatedAt: store.UpdatedAt,
+            LegalName: store.LegalName,
+            TradeName: store.TradeName,
+            Cnpj: store.Cnpj.Value,
+            Active: store.Active,
+            AddressId: store.AddressId));
 
         return Result.Success(responses);
     }

@@ -13,10 +13,7 @@ public sealed class Handler (IProductRepository repository) : IRequestHandler<Co
         if (product is null)
             return Result.Failure<Response>(new Error("404", "Product not found"));
 
-        product.Description = request.Description;
-        product.UnitPrice = request.UnitPrice;
-        product.Stock = request.Stock;
-        product.UpdatedAt = DateTime.UtcNow;
+        product.UpdateProduct(request.Description, request.UnitPrice, request.Stock);
 
         var updated = await repository.UpdateAsync(product, cancellationToken);
 

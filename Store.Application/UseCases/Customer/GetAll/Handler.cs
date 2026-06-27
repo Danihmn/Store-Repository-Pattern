@@ -13,13 +13,13 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
         if (customers is null || !customers.Any())
             return Result.Failure<IEnumerable<Response>>(new Error("404", "No customers found"));
 
-        var responses = customers.Select(c => new Response(
-            Id: c.Id,
-            CreatedAt: c.CreatedAt,
-            UpdatedAt: c.UpdatedAt,
-            Name: c.Name,
-            Email: c.Email,
-            Phone: c.Phone));
+        var responses = customers.Select(customer => new Response(
+            Id: customer.Id,
+            CreatedAt: customer.CreatedAt,
+            UpdatedAt: customer.UpdatedAt,
+            Name: customer.Name,
+            Email: customer.Email.Value,
+            Phone: customer.Phone.Value));
 
         return Result.Success(responses);
     }

@@ -1,4 +1,5 @@
 using Store.Domain.Abstractions;
+using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
 
@@ -6,7 +7,7 @@ public class Store : Entity
 {
     public string LegalName { get; private set; } = null!;
     public string? TradeName { get; private set; }
-    public string Cnpj { get; private set; } = null!;
+    public Document Cnpj { get; private set; } = null!;
     public bool Active { get; private set; }
     public Guid AddressId { get; private set; }
 
@@ -15,16 +16,12 @@ public class Store : Entity
         if (string.IsNullOrWhiteSpace(legalName))
             throw new InvalidOperationException("LegalName cannot be empty");
 
-        var cnpjDigits = cnpj?.Replace(".", "").Replace("/", "").Replace("-", "") ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(cnpjDigits) || cnpjDigits.Length != 14 || !cnpjDigits.All(char.IsDigit))
-            throw new InvalidOperationException("Invalid CNPJ");
-
         if (addressId == Guid.Empty)
             throw new InvalidOperationException("AddressId cannot be empty");
 
         LegalName = legalName;
         TradeName = tradeName;
-        Cnpj = cnpjDigits;
+        Cnpj = new Document(cnpj);
         Active = active;
         AddressId = addressId;
 
@@ -37,14 +34,6 @@ public class Store : Entity
         if (legalName != null && string.IsNullOrWhiteSpace(legalName))
             throw new InvalidOperationException("LegalName cannot be empty");
 
-        if (cnpj != null)
-        {
-            var cnpjDigits = cnpj.Replace(".", "").Replace("/", "").Replace("-", "");
-            if (string.IsNullOrWhiteSpace(cnpjDigits) || cnpjDigits.Length != 14 || !cnpjDigits.All(char.IsDigit))
-                throw new InvalidOperationException("Invalid CNPJ");
-            Cnpj = cnpjDigits;
-        }
-
         if (addressId != null && addressId == Guid.Empty)
             throw new InvalidOperationException("AddressId cannot be empty");
 
@@ -52,6 +41,7 @@ public class Store : Entity
         TradeName = tradeName ?? TradeName;
         Active = active ?? Active;
         AddressId = addressId ?? AddressId;
+        Cnpj = cnpj != null ? new Document(cnpj) : Cnpj;
 
         base.UpdatedAt = DateTime.UtcNow;
     }

@@ -8,14 +8,7 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var order = new Store.Domain.Entities.Order
-        {
-            Status = "pendente",
-            Total = request.Total,
-            CustomerId = request.CustomerId,
-            AddressId = request.AddressId,
-            CreatedAt = DateTime.UtcNow
-        };
+        var order = new Store.Domain.Entities.Order("pending", request.Total, request.CustomerId, request.AddressId);
 
         var created = await repository.CreateAsync(order, cancellationToken);
 
@@ -23,8 +16,8 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
             Id: created.Id,
             CreatedAt: created.CreatedAt,
             UpdatedAt: created.UpdatedAt,
-            Status: created.Status,
-            Total: created.Total,
+            Status: created.Status.Value.ToString(),
+            Total: created.Total.Value,
             CustomerId: created.CustomerId,
             AddressId: created.AddressId));
     }

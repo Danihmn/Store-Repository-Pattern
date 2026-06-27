@@ -13,11 +13,7 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
         if (order is null)
             return Result.Failure<Response>(new Error("404", "Order not found"));
 
-        order.Status = request.Status;
-        order.Total = request.Total;
-        order.CustomerId = request.CustomerId;
-        order.AddressId = request.AddressId;
-        order.UpdatedAt = DateTime.UtcNow;
+        order.UpdateOrder(request.Status, request.Total);
 
         var updated = await repository.UpdateAsync(order, cancellationToken);
 
@@ -25,8 +21,8 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
             Id: updated.Id,
             CreatedAt: updated.CreatedAt,
             UpdatedAt: updated.UpdatedAt,
-            Status: updated.Status,
-            Total: updated.Total,
+            Status: updated.Status.Value.ToString(),
+            Total: updated.Total.Value,
             CustomerId: updated.CustomerId,
             AddressId: updated.AddressId));
     }

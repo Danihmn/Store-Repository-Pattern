@@ -13,10 +13,7 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
         if (customer is null)
             return Result.Failure<Response>(new Error("404", "Customer not found"));
 
-        customer.Name = request.Name;
-        customer.Email = request.Email;
-        customer.Phone = request.Phone;
-        customer.UpdatedAt = DateTime.UtcNow;
+        customer.UpdateCustomer(request.Name, request.Email, request.Phone);
 
         var updated = await repository.UpdateAsync(customer, cancellationToken);
 
@@ -25,7 +22,7 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
             CreatedAt: updated.CreatedAt,
             UpdatedAt: updated.UpdatedAt,
             Name: updated.Name,
-            Email: updated.Email,
-            Phone: updated.Phone));
+            Email: updated.Email.Value,
+            Phone: updated.Phone.Value));
     }
 }

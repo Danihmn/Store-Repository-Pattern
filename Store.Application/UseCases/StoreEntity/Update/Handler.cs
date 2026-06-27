@@ -13,12 +13,7 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
         if (store is null)
             return Result.Failure<Response>(new Error("404", "Store not found"));
 
-        store.LegalName = request.LegalName;
-        store.TradeName = request.TradeName;
-        store.Cnpj = request.Cnpj;
-        store.Active = request.Active;
-        store.AddressId = request.AddressId;
-        store.UpdatedAt = DateTime.UtcNow;
+        store.UpdateStore(request.LegalName, request.TradeName, request.Cnpj, request.Active, request.AddressId);
 
         var updated = await repository.UpdateAsync(store, cancellationToken);
 
@@ -28,7 +23,7 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
             UpdatedAt: updated.UpdatedAt,
             LegalName: updated.LegalName,
             TradeName: updated.TradeName,
-            Cnpj: updated.Cnpj,
+            Cnpj: updated.Cnpj.Value,
             Active: updated.Active,
             AddressId: updated.AddressId));
     }

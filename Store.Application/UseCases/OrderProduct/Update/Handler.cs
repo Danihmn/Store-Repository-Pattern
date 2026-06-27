@@ -13,7 +13,7 @@ public sealed class Handler (IOrderProductRepository repository) : IRequestHandl
         if (item is null)
             return Result.Failure<Response>(new Error("404", "Order product not found"));
 
-        item.Quantity = request.Quantity;
+        item.UpdateQuantity(request.Quantity);
 
         var updated = await repository.UpdateAsync(item, cancellationToken);
 

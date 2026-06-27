@@ -13,10 +13,10 @@ public sealed class Handler (IOrderProductRepository repository) : IRequestHandl
         if (items is null || !items.Any())
             return Result.Failure<IEnumerable<Response>>(new Error("404", "No items found for this order"));
 
-        var responses = items.Select(i => new Response(
-            OrderId: i.OrderId,
-            ProductId: i.ProductId,
-            Quantity: i.Quantity));
+        var responses = items.Select(item => new Response(
+            OrderId: item.OrderId,
+            ProductId: item.ProductId,
+            Quantity: item.Quantity));
 
         return Result.Success(responses);
     }

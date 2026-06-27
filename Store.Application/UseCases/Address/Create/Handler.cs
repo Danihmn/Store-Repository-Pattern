@@ -8,15 +8,7 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var address = new Store.Domain.Entities.Address
-        {
-            Street = request.Street,
-            City = request.City,
-            State = request.State,
-            ZipCode = request.ZipCode,
-            CreatedAt = DateTime.UtcNow
-        };
-
+        var address = new Store.Domain.Entities.Address(request.Street, request.City, request.State, request.ZipCode);
         var created = await repository.CreateAsync(address, cancellationToken);
 
         return Result.Success(new Response(

@@ -18,7 +18,7 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
             CreatedAt: customer.CreatedAt,
             UpdatedAt: customer.UpdatedAt,
             Name: customer.Name,
-            Email: customer.Email,
-            Phone: customer.Phone));
+            Email: customer.Email.Value,
+            Phone: customer.Phone.Value));
     }
 }

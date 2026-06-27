@@ -13,14 +13,14 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
         if (orders is null || !orders.Any())
             return Result.Failure<IEnumerable<Response>>(new Error("404", "No orders found"));
 
-        var responses = orders.Select(o => new Response(
-            Id: o.Id,
-            CreatedAt: o.CreatedAt,
-            UpdatedAt: o.UpdatedAt,
-            Status: o.Status,
-            Total: o.Total,
-            CustomerId: o.CustomerId,
-            AddressId: o.AddressId));
+        var responses = orders.Select(order => new Response(
+            Id: order.Id,
+            CreatedAt: order.CreatedAt,
+            UpdatedAt: order.UpdatedAt,
+            Status: order.Status.Value.ToString(),
+            Total: order.Total.Value,
+            CustomerId: order.CustomerId,
+            AddressId: order.AddressId));
 
         return Result.Success(responses);
     }
