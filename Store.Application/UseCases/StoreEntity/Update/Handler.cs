@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.StoreEntity.Update;
@@ -11,13 +11,16 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
         var store = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (store is null)
-            return Result.Failure<Response>(new Error("404", "Store not found"));
+            return Result.Fail<Response>("Store not found");
 
-        store.UpdateStore(request.LegalName, request.TradeName, request.Cnpj, request.Active, request.AddressId);
+        var updateResult = store.UpdateStore(request.LegalName, request.TradeName, request.Cnpj, request.Active, request.AddressId);
+
+        if (updateResult.IsFailed)
+            return Result.Fail<Response>(updateResult.Errors);
 
         var updated = await repository.UpdateAsync(store, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: updated.Id,
             CreatedAt: updated.CreatedAt,
             UpdatedAt: updated.UpdatedAt,

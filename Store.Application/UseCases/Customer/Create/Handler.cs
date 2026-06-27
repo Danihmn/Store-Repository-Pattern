@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Customer.Create;
@@ -8,10 +8,10 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var customer = new Store.Domain.Entities.Customer(request.Name, request.Email, request.Phone);
-        var created = await repository.CreateAsync(customer, cancellationToken);
+        var customer = Store.Domain.Entities.Customer.Create(request.Name, request.Email, request.Phone);
+        var created = await repository.CreateAsync(customer.Value, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: created.Id,
             CreatedAt: created.CreatedAt,
             UpdatedAt: created.UpdatedAt,

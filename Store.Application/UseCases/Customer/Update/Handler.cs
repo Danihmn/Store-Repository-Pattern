@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Customer.Update;
@@ -11,13 +11,13 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
         var customer = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (customer is null)
-            return Result.Failure<Response>(new Error("404", "Customer not found"));
+            return Result.Fail<Response>("Customer not found");
 
         customer.UpdateCustomer(request.Name, request.Email, request.Phone);
 
         var updated = await repository.UpdateAsync(customer, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: updated.Id,
             CreatedAt: updated.CreatedAt,
             UpdatedAt: updated.UpdatedAt,

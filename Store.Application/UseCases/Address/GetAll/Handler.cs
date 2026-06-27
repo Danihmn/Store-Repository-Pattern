@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Address.GetAll;
@@ -11,7 +11,7 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
         var addresses = await repository.GetAllAsync(request.Skip, request.Take, cancellationToken);
 
         if (addresses is null || !addresses.Any())
-            return Result.Failure<IEnumerable<Response>>(new Error("404", "No addresses found"));
+            return Result.Fail<IEnumerable<Response>>("No addresses found");
 
         var responses = addresses.Select(a => new Response(
             Id: a.Id,
@@ -20,8 +20,8 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
             Street: a.Street,
             City: a.City,
             State: a.State,
-            ZipCode: a.ZipCode));
+            ZipCode: a.ZipCode.Value));
 
-        return Result.Success(responses);
+        return Result.Ok(responses);
     }
 }

@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Product.Update;
@@ -11,13 +11,16 @@ public sealed class Handler (IProductRepository repository) : IRequestHandler<Co
         var product = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
-            return Result.Failure<Response>(new Error("404", "Product not found"));
+            return Result.Fail<Response>("Product not found");
 
-        product.UpdateProduct(request.Description, request.UnitPrice, request.Stock);
+        var updateResult = product.UpdateProduct(request.Description, request.UnitPrice, request.Stock);
+
+        if (updateResult.IsFailed)
+            return Result.Fail<Response>(updateResult.Errors);
 
         var updated = await repository.UpdateAsync(product, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: updated.Id,
             CreatedAt: updated.CreatedAt,
             UpdatedAt: updated.UpdatedAt,

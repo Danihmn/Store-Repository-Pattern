@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.OrderProduct.Update;
@@ -11,13 +11,16 @@ public sealed class Handler (IOrderProductRepository repository) : IRequestHandl
         var item = await repository.GetByCompositeKeyAsync(request.OrderId, request.ProductId, cancellationToken);
 
         if (item is null)
-            return Result.Failure<Response>(new Error("404", "Order product not found"));
+            return Result.Fail<Response>("Order product not found");
 
-        item.UpdateQuantity(request.Quantity);
+        var updateResult = item.UpdateQuantity(request.Quantity);
+
+        if (updateResult.IsFailed)
+            return Result.Fail<Response>(updateResult.Errors);
 
         var updated = await repository.UpdateAsync(item, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             OrderId: updated.OrderId,
             ProductId: updated.ProductId,
             Quantity: updated.Quantity));

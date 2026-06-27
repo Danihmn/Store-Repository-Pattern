@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Address.Delete;
@@ -11,10 +11,10 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
         var address = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (address is null)
-            return Result.Failure(new Error("404", "Address not found"));
+            return Result.Fail("Address not found");
 
         await repository.DeleteAsync(request.Id, cancellationToken);
 
-        return Result.Success();
+        return Result.Ok();
     }
 }

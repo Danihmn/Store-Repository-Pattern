@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Order.GetAll;
@@ -11,7 +11,7 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
         var orders = await repository.GetAllAsync(request.Skip, request.Take, cancellationToken);
 
         if (orders is null || !orders.Any())
-            return Result.Failure<IEnumerable<Response>>(new Error("404", "No orders found"));
+            return Result.Fail<IEnumerable<Response>>("No orders found");
 
         var responses = orders.Select(order => new Response(
             Id: order.Id,
@@ -22,6 +22,6 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
             CustomerId: order.CustomerId,
             AddressId: order.AddressId));
 
-        return Result.Success(responses);
+        return Result.Ok(responses);
     }
 }

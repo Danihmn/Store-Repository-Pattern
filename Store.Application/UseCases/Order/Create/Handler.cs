@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Order.Create;
@@ -8,11 +8,14 @@ public sealed class Handler (IOrderRepository repository) : IRequestHandler<Comm
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var order = new Store.Domain.Entities.Order("pending", request.Total, request.CustomerId, request.AddressId);
+        var orderResult = Store.Domain.Entities.Order.Create("pending", request.Total, request.CustomerId, request.AddressId);
 
-        var created = await repository.CreateAsync(order, cancellationToken);
+        if (orderResult.IsFailed)
+            return Result.Fail<Response>(orderResult.Errors);
 
-        return Result.Success(new Response(
+        var created = await repository.CreateAsync(orderResult.Value, cancellationToken);
+
+        return Result.Ok(new Response(
             Id: created.Id,
             CreatedAt: created.CreatedAt,
             UpdatedAt: created.UpdatedAt,

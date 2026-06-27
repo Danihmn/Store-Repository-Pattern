@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Address.GetById;
@@ -11,15 +11,15 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
         var address = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (address is null)
-            return Result.Failure<Response>(new Error("404", "Address not found"));
+            return Result.Fail<Response>("Address not found");
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: address.Id,
             CreatedAt: address.CreatedAt,
             UpdatedAt: address.UpdatedAt,
             Street: address.Street,
             City: address.City,
             State: address.State,
-            ZipCode: address.ZipCode));
+            ZipCode: address.ZipCode.Value));
     }
 }

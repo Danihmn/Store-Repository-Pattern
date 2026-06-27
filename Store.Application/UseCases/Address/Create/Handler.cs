@@ -1,3 +1,4 @@
+using FluentResults;
 using MediatR;
 using Store.Domain.Repositories;
 
@@ -7,16 +8,20 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var address = new Store.Domain.Entities.Address(request.Street, request.City, request.State, request.ZipCode);
-        var created = await repository.CreateAsync(address, cancellationToken);
+        var addressResult = Store.Domain.Entities.Address.Create(request.Street, request.City, request.State, request.ZipCode);
 
-        return Result.Success(new Response(
+        if (addressResult.IsFailed)
+            return Result.Fail<Response>(addressResult.Errors);
+
+        var created = await repository.CreateAsync(addressResult.Value, cancellationToken);
+
+        return Result.Ok(new Response(
             Id: created.Id,
             CreatedAt: created.CreatedAt,
             UpdatedAt: created.UpdatedAt,
             Street: created.Street,
             City: created.City,
             State: created.State,
-            ZipCode: created.ZipCode));
+            ZipCode: created.ZipCode.Value));
     }
 }

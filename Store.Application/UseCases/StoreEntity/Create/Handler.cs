@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.StoreEntity.Create;
@@ -8,17 +8,19 @@ public sealed class Handler (IStoreRepository repository) : IRequestHandler<Comm
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var store = new Store.Domain.Entities.Store(
+        var storeResult = Store.Domain.Entities.Store.Create(
             request.LegalName,
             request.Cnpj,
             request.AddressId,
             request.TradeName,
             request.Active);
 
+        if (storeResult.IsFailed)
+            return Result.Fail<Response>(storeResult.Errors);
 
-        var created = await repository.CreateAsync(store, cancellationToken);
+        var created = await repository.CreateAsync(storeResult.Value, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: created.Id,
             CreatedAt: created.CreatedAt,
             UpdatedAt: created.UpdatedAt,

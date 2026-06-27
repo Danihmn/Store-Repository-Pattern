@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Product.GetAll;
@@ -11,7 +11,7 @@ public sealed class Handler (IProductRepository repository) : IRequestHandler<Co
         var products = await repository.GetAllAsync(request.Skip, request.Take, cancellationToken);
 
         if (products is null || !products.Any())
-            return Result.Failure<IEnumerable<Response>>(new Error("404", "No products found"));
+            return Result.Fail<IEnumerable<Response>>("No products found");
 
         var responses = products.Select(p => new Response(
             Id: p.Id,
@@ -21,6 +21,6 @@ public sealed class Handler (IProductRepository repository) : IRequestHandler<Co
             UnitPrice: p.UnitPrice,
             Stock: p.Stock));
 
-        return Result.Success(responses);
+        return Result.Ok(responses);
     }
 }

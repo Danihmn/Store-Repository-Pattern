@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 
 namespace Store.Application.UseCases.StoreEntity.GetAll;
 

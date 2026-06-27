@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.OrderProduct.Create;
@@ -8,10 +8,14 @@ public sealed class Handler (IOrderProductRepository repository) : IRequestHandl
 {
     public async Task<Result<Response>> Handle (Command request, CancellationToken cancellationToken)
     {
-        var item = new Store.Domain.Entities.OrderProduct(request.OrderId, request.ProductId, request.Quantity);
-        var created = await repository.CreateAsync(item, cancellationToken);
+        var itemResult = Store.Domain.Entities.OrderProduct.Create(request.OrderId, request.ProductId, request.Quantity);
 
-        return Result.Success(new Response(
+        if (itemResult.IsFailed)
+            return Result.Fail<Response>(itemResult.Errors);
+
+        var created = await repository.CreateAsync(itemResult.Value, cancellationToken);
+
+        return Result.Ok(new Response(
             OrderId: created.OrderId,
             ProductId: created.ProductId,
             Quantity: created.Quantity));

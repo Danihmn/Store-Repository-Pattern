@@ -1,5 +1,5 @@
+using FluentResults;
 using MediatR;
-using Store.Domain.Abstractions;
 using Store.Domain.Repositories;
 
 namespace Store.Application.UseCases.Address.Update;
@@ -11,19 +11,22 @@ public sealed class Handler (IAddressRepository repository) : IRequestHandler<Co
         var address = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (address is null)
-            return Result.Failure<Response>(new Error("404", "Address not found"));
+            return Result.Fail<Response>("Address not found");
 
-        address.UpdateAddress(request.Street, request.City, request.State, request.ZipCode);
+        var updateResult = address.UpdateAddress(request.Street, request.City, request.State, request.ZipCode);
+
+        if (updateResult.IsFailed)
+            return Result.Fail<Response>(updateResult.Errors);
 
         var updated = await repository.UpdateAsync(address, cancellationToken);
 
-        return Result.Success(new Response(
+        return Result.Ok(new Response(
             Id: updated.Id,
             CreatedAt: updated.CreatedAt,
             UpdatedAt: updated.UpdatedAt,
             Street: updated.Street,
             City: updated.City,
             State: updated.State,
-            ZipCode: updated.ZipCode));
+            ZipCode: updated.ZipCode.Value));
     }
 }
