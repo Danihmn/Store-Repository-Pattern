@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Store.Domain.Entities;
+using Store.Domain.ValueObjects;
 
 namespace Store.Infrastructure.Data.Mappings;
 
@@ -34,6 +35,7 @@ public class AddressMapping : IEntityTypeConfiguration<Address>
             .IsFixedLength()
             .HasColumnName("state");
         builder.Property(e => e.ZipCode)
+            .HasConversion(zc => zc.Value, value => ZipCode.Create(value).Value)
             .HasMaxLength(9)
             .HasColumnName("zip_code");
     }

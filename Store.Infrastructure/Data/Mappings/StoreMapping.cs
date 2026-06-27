@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Store.Domain.ValueObjects;
 
 namespace Store.Infrastructure.Data.Mappings;
 
 public class StoreMapping : IEntityTypeConfiguration<Store.Domain.Entities.Store>
 {
-    public void Configure (Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<Store.Domain.Entities.Store> builder)
+    public void Configure
+        (Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<Store.Domain.Entities.Store> builder)
     {
         builder.HasKey(e => e.Id).HasName("pk_stores");
 
@@ -31,6 +32,7 @@ public class StoreMapping : IEntityTypeConfiguration<Store.Domain.Entities.Store
             .HasMaxLength(200)
             .HasColumnName("trade_name");
         builder.Property(e => e.Cnpj)
+            .HasConversion(d => d.Value, value => Document.Create(value).Value)
             .HasMaxLength(14)
             .IsFixedLength()
             .HasColumnName("cnpj");

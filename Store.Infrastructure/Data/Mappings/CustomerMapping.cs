@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Store.Domain.Entities;
+using Store.Domain.ValueObjects;
 
 namespace Store.Infrastructure.Data.Mappings;
 
@@ -30,9 +31,11 @@ public class CustomerMapping : IEntityTypeConfiguration<Customer>
             .HasMaxLength(100)
             .HasColumnName("name");
         builder.Property(e => e.Email)
+            .HasConversion(e => e.Value, value => Email.Create(value).Value)
             .HasMaxLength(150)
             .HasColumnName("email");
         builder.Property(e => e.Phone)
+            .HasConversion(p => p.Value, value => Phone.Create(value).Value)
             .HasMaxLength(20)
             .HasColumnName("phone");
     }

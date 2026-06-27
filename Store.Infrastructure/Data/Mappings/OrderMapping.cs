@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Store.Domain.Entities;
+using Store.Domain.ValueObjects;
 
 namespace Store.Infrastructure.Data.Mappings;
 
@@ -28,10 +29,12 @@ public class OrderMapping : IEntityTypeConfiguration<Order>
         builder.Property(e => e.AddressId)
             .HasColumnName("address_id");
         builder.Property(e => e.Status)
+            .HasConversion(s => s.Value.ToString(), value => Status.Create(value).Value)
             .HasMaxLength(20)
             .HasDefaultValueSql("'pending'::character varying")
             .HasColumnName("status");
         builder.Property(e => e.Total)
+            .HasConversion(c => c.Value, value => Currency.Create(value).Value)
             .HasPrecision(10, 2)
             .HasColumnName("total");
     }
