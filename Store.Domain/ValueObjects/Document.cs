@@ -1,4 +1,5 @@
-﻿using Store.Domain.Abstractions;
+﻿using FluentResults;
+using Store.Domain.Abstractions;
 using Store.Domain.Enums;
 
 namespace Store.Domain.ValueObjects;
@@ -8,25 +9,36 @@ public class Document : ValueObject
     public string Value { get; }
     public EDocumentType Type { get; }
 
-    public Document (string value)
+    private Document (string value, EDocumentType type)
+    {
+        Value = value;
+        Type = type;
+    }
+
+    public static Result<Document> Create (string value)
     {
         var clean = Clean(value);
 
-        var type = clean.Length switch
+        var typeResult = clean.Length switch
         {
-            11 => EDocumentType.CPF,
-            14 => EDocumentType.CNPJ,
-            _ => throw new ArgumentException("Document must have 11 (CPF) or 14 (CNPJ) digits.")
+            11 => Result.Ok(EDocumentType.CPF),
+            14 => Result.Ok(EDocumentType.CNPJ),
+            _ => Result.Fail<EDocumentType>("Document must have 11 (CPF) or 14 (CNPJ) digits.")
         };
+
+        if (typeResult.IsFailed)
+            return Result.Fail<Document>(typeResult.Errors);
+
+        var type = typeResult.Value;
 
         var isValid = type == EDocumentType.CPF
             ? IsValidCpf(clean)
             : IsValidCnpj(clean);
 
-        if (!isValid) throw new ArgumentException($"{type} is invalid.");
+        if (!isValid)
+            return Result.Fail($"{type} is invalid.");
 
-        Value = value;
-        Type = type;
+        return Result.Ok(new Document(value, type));
     }
 
     private static string Clean (string value)

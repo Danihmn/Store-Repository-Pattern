@@ -1,4 +1,6 @@
+using FluentResults;
 using Store.Domain.Abstractions;
+using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
 
@@ -7,22 +9,10 @@ public class Address : Entity
     public string Street { get; private set; }
     public string City { get; private set; }
     public string State { get; private set; }
-    public string ZipCode { get; private set; }
+    public ZipCode ZipCode { get; private set; }
 
-    public Address (string street, string city, string state, string zipCode)
+    private Address (string street, string city, string state, ZipCode zipCode)
     {
-        if (string.IsNullOrWhiteSpace(street))
-            throw new InvalidOperationException("Street cannot be empty");
-
-        if (string.IsNullOrWhiteSpace(city))
-            throw new InvalidOperationException("City cannot be empty");
-
-        if (string.IsNullOrWhiteSpace(state))
-            throw new InvalidOperationException("State cannot be empty");
-
-        if (string.IsNullOrWhiteSpace(zipCode))
-            throw new InvalidOperationException("ZipCode cannot be empty");
-
         Street = street;
         City = city;
         State = state;
@@ -32,25 +22,54 @@ public class Address : Entity
         base.UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateAddress (string? street = null, string? city = null, string? state = null, string? zipCode = null)
+    public static Result<Address> Create (string street, string city, string state, string zipCode)
     {
-        if (street != null && string.IsNullOrWhiteSpace(street))
-            throw new InvalidOperationException("Street cannot be empty");
+        var errors = new List<IError>();
 
-        if (city != null && string.IsNullOrWhiteSpace(city))
-            throw new InvalidOperationException("City cannot be empty");
+        if (string.IsNullOrWhiteSpace(street))
+            errors.Add(new Abstractions.Error("InvalidStreet", "Street cannot be empty"));
 
-        if (state != null && string.IsNullOrWhiteSpace(state))
-            throw new InvalidOperationException("State cannot be empty");
+        if (string.IsNullOrWhiteSpace(city))
+            errors.Add(new Abstractions.Error("InvalidCity", "City cannot be empty"));
 
-        if (zipCode != null && string.IsNullOrWhiteSpace(zipCode))
-            throw new InvalidOperationException("ZipCode cannot be empty");
+        if (string.IsNullOrWhiteSpace(state))
+            errors.Add(new Abstractions.Error("InvalidState", "State cannot be empty"));
+
+        var zipCodeResult = ZipCode.Create(zipCode);
+
+        if (zipCodeResult.IsFailed)
+            errors.AddRange(zipCodeResult.Errors);
+
+        if (errors.Count > 0)
+            return Result.Fail<Address>(errors);
+
+        return Result.Ok(new Address(street, city, state, zipCodeResult.Value));
+    }
+
+    public Result UpdateAddress (string? street = null, string? city = null, string? state = null, string? zipCode = null)
+    {
+        var errors = new List<IError>();
+        ZipCode? newZipCode = ZipCode;
+
+        if (zipCode != null)
+        {
+            var zipCodeResult = ZipCode.Create(zipCode);
+
+            if (zipCodeResult.IsFailed)
+                errors.AddRange(zipCodeResult.Errors);
+            else
+                newZipCode = zipCodeResult.Value;
+        }
+
+        if (errors.Count > 0)
+            return Result.Fail(errors);
 
         Street = street ?? Street;
         City = city ?? City;
         State = state ?? State;
-        ZipCode = zipCode ?? ZipCode;
+        ZipCode = newZipCode!;
 
         base.UpdatedAt = DateTime.UtcNow;
+        return Result.Ok();
     }
 }

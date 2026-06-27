@@ -1,3 +1,4 @@
+using FluentResults;
 using Store.Domain.Abstractions;
 using Store.Domain.ValueObjects;
 
@@ -9,27 +10,38 @@ public class Customer : Entity
     public Email Email { get; private set; } = null!;
     public Phone Phone { get; private set; }
 
-    public Customer (string name, string email, string phone)
+    private Customer (string name, Email email, Phone phone)
     {
         Name = name;
-        Email = new Email(email);
-        Phone = new Phone(phone);
+        Email = email;
+        Phone = phone;
 
         base.CreatedAt = DateTime.UtcNow;
         base.UpdatedAt = DateTime.UtcNow;
     }
 
+    public static Result<Customer> Create (string name, string email, string phone)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Result.Fail<Customer>("Name cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(email))
+            return Result.Fail<Customer>("Email cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(phone))
+            return Result.Fail<Customer>("Phone cannot be empty");
+
+        var emailResult = Email.Create(email);
+        var phoneResult = Phone.Create(phone);
+
+        return Result.Ok(new Customer(name, emailResult.Value, phoneResult.Value));
+    }
+
     public void UpdateCustomer (string? name = null, string? email = null, string? phone = null)
     {
-        if (name != null && string.IsNullOrWhiteSpace(name))
-            throw new InvalidOperationException("Name cannot be empty");
-
-        if (email != null && (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || !email.Contains('.')))
-            throw new InvalidOperationException("Invalid email");
-
         Name = name ?? Name;
-        Email = email != null ? new Email(email) : Email;
-        Phone = phone != null ? new Phone(phone) : Phone;
+        Email = email != null ? Email.Create(email).Value : Email;
+        Phone = phone != null ? Phone.Create(phone).Value : Phone;
 
         base.UpdatedAt = DateTime.UtcNow;
     }

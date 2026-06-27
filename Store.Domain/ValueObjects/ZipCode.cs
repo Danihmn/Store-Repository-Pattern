@@ -1,0 +1,27 @@
+﻿using FluentResults;
+using Store.Domain.Abstractions;
+
+namespace Store.Domain.ValueObjects;
+
+public class ZipCode : ValueObject
+{
+    public string Value { get; }
+
+    private ZipCode (string value) => Value = value;
+
+    public static Result<ZipCode> Create (string value)
+    {
+        var cleaned = Clean(value);
+
+        if (!IsValid(cleaned))
+            return Result.Fail("Invalid zip code");
+
+        return Result.Ok(new ZipCode(cleaned));
+    }
+
+    private static string Clean (string value) =>
+        value?.Replace("-", "").Trim() ?? string.Empty;
+
+    private static bool IsValid (string value) =>
+        value.Length == 8 && value.All(char.IsDigit);
+}

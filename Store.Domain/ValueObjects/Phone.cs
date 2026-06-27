@@ -1,4 +1,5 @@
-﻿using Store.Domain.Abstractions;
+﻿using FluentResults;
+using Store.Domain.Abstractions;
 using System.Text.RegularExpressions;
 
 namespace Store.Domain.ValueObjects;
@@ -7,12 +8,14 @@ public class Phone : ValueObject
 {
     public string Value { get; }
 
-    public Phone (string number)
+    private Phone (string number) => Value = number;
+
+    public static Result<Phone> Create (string number)
     {
         if (string.IsNullOrWhiteSpace(number) || !IsValid(number))
-            throw new InvalidOperationException("Invalid phone number");
+            return Result.Fail("Invalid phone number");
 
-        Value = number;
+        return Result.Ok(new Phone(number));
     }
 
     private static bool IsValid (string number)

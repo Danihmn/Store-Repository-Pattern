@@ -1,3 +1,4 @@
+using FluentResults;
 using Store.Domain.Abstractions;
 using Store.Domain.ValueObjects;
 
@@ -11,17 +12,11 @@ public class Store : Entity
     public bool Active { get; private set; }
     public Guid AddressId { get; private set; }
 
-    public Store (string legalName, string cnpj, Guid addressId, string? tradeName = null, bool active = true)
+    private Store (string legalName, Document cnpj, Guid addressId, string? tradeName, bool active)
     {
-        if (string.IsNullOrWhiteSpace(legalName))
-            throw new InvalidOperationException("LegalName cannot be empty");
-
-        if (addressId == Guid.Empty)
-            throw new InvalidOperationException("AddressId cannot be empty");
-
         LegalName = legalName;
         TradeName = tradeName;
-        Cnpj = new Document(cnpj);
+        Cnpj = cnpj;
         Active = active;
         AddressId = addressId;
 
@@ -29,20 +24,57 @@ public class Store : Entity
         base.UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateStore (string? legalName = null, string? tradeName = null, string? cnpj = null, bool? active = null, Guid? addressId = null)
+    public static Result<Store> Create (string legalName, string cnpj, Guid addressId, string? tradeName = null, bool active = true)
     {
+        var errors = new List<IError>();
+
+        if (string.IsNullOrWhiteSpace(legalName))
+            errors.Add(new Abstractions.Error("InvalidLegalName", "LegalName cannot be empty"));
+
+        if (addressId == Guid.Empty)
+            errors.Add(new Abstractions.Error("InvalidAddressId", "AddressId cannot be empty"));
+
+        var cnpjResult = Document.Create(cnpj);
+
+        if (cnpjResult.IsFailed)
+            errors.AddRange(cnpjResult.Errors);
+
+        if (errors.Count > 0)
+            return Result.Fail<Store>(errors);
+
+        return Result.Ok(new Store(legalName, cnpjResult.Value, addressId, tradeName, active));
+    }
+
+    public Result UpdateStore (string? legalName = null, string? tradeName = null, string? cnpj = null, bool? active = null, Guid? addressId = null)
+    {
+        var errors = new List<IError>();
+        Document newCnpj = Cnpj;
+
         if (legalName != null && string.IsNullOrWhiteSpace(legalName))
-            throw new InvalidOperationException("LegalName cannot be empty");
+            errors.Add(new Abstractions.Error("InvalidLegalName", "LegalName cannot be empty"));
 
         if (addressId != null && addressId == Guid.Empty)
-            throw new InvalidOperationException("AddressId cannot be empty");
+            errors.Add(new Abstractions.Error("InvalidAddressId", "AddressId cannot be empty"));
+
+        if (cnpj != null)
+        {
+            var cnpjResult = Document.Create(cnpj);
+            if (cnpjResult.IsFailed)
+                errors.AddRange(cnpjResult.Errors);
+            else
+                newCnpj = cnpjResult.Value;
+        }
+
+        if (errors.Count > 0)
+            return Result.Fail(errors);
 
         LegalName = legalName ?? LegalName;
         TradeName = tradeName ?? TradeName;
         Active = active ?? Active;
         AddressId = addressId ?? AddressId;
-        Cnpj = cnpj != null ? new Document(cnpj) : Cnpj;
+        Cnpj = newCnpj;
 
         base.UpdatedAt = DateTime.UtcNow;
+        return Result.Ok();
     }
 }

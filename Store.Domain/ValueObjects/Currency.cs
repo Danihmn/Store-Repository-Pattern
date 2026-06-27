@@ -1,4 +1,5 @@
-﻿using Store.Domain.Abstractions;
+﻿using FluentResults;
+using Store.Domain.Abstractions;
 
 namespace Store.Domain.ValueObjects;
 
@@ -6,11 +7,13 @@ public class Currency : ValueObject
 {
     public decimal Value { get; }
 
-    public Currency (decimal amount)
+    private Currency (decimal amount) => Value = amount;
+
+    public static Result<Currency> Create (decimal amount)
     {
         if (amount <= 0)
-            throw new InvalidOperationException("Amount must be greater than 0");
+            return Result.Fail("Amount must be greater than 0");
 
-        Value = amount;
+        return Result.Ok(new Currency(amount));
     }
 }
