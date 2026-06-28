@@ -1,4 +1,4 @@
 namespace Store.Application.UseCases.Customer.GetAll;
 
 public sealed record Response
-    (Guid Id, DateTime? CreatedAt, DateTime? UpdatedAt, string Name, string Email, string? Phone);
+    (Guid Id, DateTime? CreatedAt, DateTime? UpdatedAt, string Name, string Email, string Phone);

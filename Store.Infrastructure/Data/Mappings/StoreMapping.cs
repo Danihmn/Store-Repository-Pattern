@@ -32,7 +32,7 @@ public class StoreMapping : IEntityTypeConfiguration<Store.Domain.Entities.Store
             .HasMaxLength(200)
             .HasColumnName("trade_name");
         builder.Property(e => e.Cnpj)
-            .HasConversion(d => d.Value, value => Document.Create(value).Value)
+            .HasConversion(d => d.Value, value => Document.FromPersistence(value))
             .HasMaxLength(14)
             .IsFixedLength()
             .HasColumnName("cnpj");

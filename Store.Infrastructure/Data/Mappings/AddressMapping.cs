@@ -35,7 +35,7 @@ public class AddressMapping : IEntityTypeConfiguration<Address>
             .IsFixedLength()
             .HasColumnName("state");
         builder.Property(e => e.ZipCode)
-            .HasConversion(zc => zc.Value, value => ZipCode.Create(value).Value)
+            .HasConversion(zc => zc.Value, value => ZipCode.FromPersistence(value))
             .HasMaxLength(9)
             .HasColumnName("zip_code");
     }

@@ -31,11 +31,11 @@ public class CustomerMapping : IEntityTypeConfiguration<Customer>
             .HasMaxLength(100)
             .HasColumnName("name");
         builder.Property(e => e.Email)
-            .HasConversion(e => e.Value, value => Email.Create(value).Value)
+            .HasConversion(e => e.Value, value => Email.FromPersistence(value))
             .HasMaxLength(150)
             .HasColumnName("email");
         builder.Property(e => e.Phone)
-            .HasConversion(p => p.Value, value => Phone.Create(value).Value)
+            .HasConversion(p => p.Value, value => Phone.FromPersistence(value))
             .HasMaxLength(20)
             .HasColumnName("phone");
     }
