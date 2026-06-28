@@ -9,6 +9,8 @@ public class Currency : ValueObject
 
     private Currency (decimal amount) => Value = amount;
 
+    public static Currency FromPersistence (decimal value) => new(value);
+
     public static Result<Currency> Create (decimal amount)
     {
         if (amount <= 0)

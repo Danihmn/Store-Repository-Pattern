@@ -10,6 +10,8 @@ public class Status : ValueObject
 
     private Status (EStatus value) => Value = value;
 
+    public static Status FromPersistence (EStatus value) => new(value);
+
     public static Result<Status> Create (string value)
     {
         if (Enum.TryParse<EStatus>(value, true, out var status))

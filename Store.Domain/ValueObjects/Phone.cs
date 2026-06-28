@@ -1,6 +1,6 @@
 ﻿using FluentResults;
+using PhoneNumbers;
 using Store.Domain.Abstractions;
-using System.Text.RegularExpressions;
 
 namespace Store.Domain.ValueObjects;
 
@@ -10,14 +10,32 @@ public class Phone : ValueObject
 
     private Phone (string number) => Value = number;
 
+    public static Phone FromPersistence (string number) => new(number);
+
     public static Result<Phone> Create (string number)
     {
-        if (string.IsNullOrWhiteSpace(number) || !IsValid(number))
-            return Result.Fail("Invalid phone number");
+        try
+        {
+            if (string.IsNullOrWhiteSpace(number) || !IsValid(number))
+                return Result.Fail("Invalid phone number");
 
-        return Result.Ok(new Phone(number));
+            return Result.Ok(new Phone(number));
+        }
+        catch (NumberParseException)
+        {
+            return Result.Fail("Invalid phone number");
+        }
+        catch
+        {
+            return Result.Fail("Error trying to create phone number");
+        }
     }
 
     private static bool IsValid (string number)
-        => Regex.IsMatch(number, @"^\(\d{2}\)\s?\d{4,5}-\d{4}$");
+    {
+        var util = PhoneNumbers.PhoneNumberUtil.GetInstance();
+        var phoneNumber = util.Parse(number, null);
+
+        return util.IsValidNumber(phoneNumber);
+    }
 }

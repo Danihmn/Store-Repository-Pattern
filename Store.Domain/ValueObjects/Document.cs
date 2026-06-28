@@ -15,6 +15,14 @@ public class Document : ValueObject
         Type = type;
     }
 
+    public static Document FromPersistence (string value)
+    {
+        var clean = Clean(value);
+        var type = clean.Length == 11 ? EDocumentType.CPF : EDocumentType.CNPJ;
+
+        return new Document(value, type);
+    }
+
     public static Result<Document> Create (string value)
     {
         var clean = Clean(value);

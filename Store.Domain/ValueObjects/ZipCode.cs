@@ -9,6 +9,8 @@ public class ZipCode : ValueObject
 
     private ZipCode (string value) => Value = value;
 
+    public static ZipCode FromPersistence (string value) => new(value);
+
     public static Result<ZipCode> Create (string value)
     {
         var cleaned = Clean(value);
