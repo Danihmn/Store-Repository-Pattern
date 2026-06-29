@@ -1,5 +1,5 @@
 using FluentResults;
-using Store.Domain.Abstractions;
+using Store.Domain.Validations;
 
 namespace Store.Domain.Entities;
 
@@ -20,14 +20,9 @@ public class OrderProduct
     {
         var errors = new List<IError>();
 
-        if (orderId == Guid.Empty)
-            errors.Add(new Abstractions.Error("InvalidOrderId", "OrderId cannot be empty"));
-
-        if (productId == Guid.Empty)
-            errors.Add(new Abstractions.Error("InvalidProductId", "ProductId cannot be empty"));
-
-        if (quantity <= 0)
-            errors.Add(new Abstractions.Error("InvalidQuantity", "Quantity must be greater than 0"));
+        errors.NotEmpty(orderId, "InvalidOrderId", "OrderId cannot be empty");
+        errors.NotEmpty(productId, "InvalidProductId", "ProductId cannot be empty");
+        errors.GreaterThanZero(quantity, "InvalidQuantity", "Quantity must be greater than 0");
 
         if (errors.Count > 0)
             return Result.Fail<OrderProduct>(errors);
@@ -37,10 +32,14 @@ public class OrderProduct
 
     public Result UpdateQuantity (int quantity)
     {
-        if (quantity <= 0)
-            return Result.Fail(new Abstractions.Error("InvalidQuantity", "Quantity must be greater than 0"));
+        var errors = new List<IError>();
+
+        errors.GreaterThanZero(quantity, "InvalidQuantity", "Quantity must be greater than 0");
+
+        if (errors.Count > 0) return Result.Fail(errors);
 
         Quantity = quantity;
+
         return Result.Ok();
     }
 }

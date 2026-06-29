@@ -1,5 +1,6 @@
 using FluentResults;
 using Store.Domain.Abstractions;
+using Store.Domain.Validations;
 using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
@@ -17,28 +18,22 @@ public class Order : Entity
         Total = total;
         CustomerId = customerId;
         AddressId = addressId;
-
-        base.CreatedAt = DateTime.UtcNow;
-        base.UpdatedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public static Result<Order> Create (string status, decimal total, Guid customerId, Guid addressId)
     {
         var errors = new List<IError>();
 
-        if (customerId == Guid.Empty)
-            errors.Add(new Abstractions.Error("InvalidCustomerId", "CustomerId cannot be empty"));
-
-        if (addressId == Guid.Empty)
-            errors.Add(new Abstractions.Error("InvalidAddressId", "AddressId cannot be empty"));
+        errors.NotEmpty(customerId, "InvalidCustomerId", "CustomerId cannot be empty");
+        errors.NotEmpty(addressId, "InvalidAddressId", "AddressId cannot be empty");
 
         var statusResult = Status.Create(status);
-        if (statusResult.IsFailed)
-            errors.AddRange(statusResult.Errors);
+        statusResult.AddErrorsTo(errors);
 
         var totalResult = Currency.Create(total);
-        if (totalResult.IsFailed)
-            errors.AddRange(totalResult.Errors);
+        totalResult.AddErrorsTo(errors);
 
         if (errors.Count > 0)
             return Result.Fail<Order>(errors);
@@ -55,18 +50,18 @@ public class Order : Entity
         if (status != null)
         {
             var statusResult = Status.Create(status);
-            if (statusResult.IsFailed)
-                errors.AddRange(statusResult.Errors);
-            else
+            statusResult.AddErrorsTo(errors);
+
+            if (statusResult.IsSuccess)
                 newStatus = statusResult.Value;
         }
 
         if (total != null)
         {
             var totalResult = Currency.Create(total.Value);
-            if (totalResult.IsFailed)
-                errors.AddRange(totalResult.Errors);
-            else
+            totalResult.AddErrorsTo(errors);
+
+            if (totalResult.IsSuccess)
                 newTotal = totalResult.Value;
         }
 
@@ -75,8 +70,8 @@ public class Order : Entity
 
         Status = newStatus;
         Total = newTotal;
+        UpdatedAt = DateTime.UtcNow;
 
-        base.UpdatedAt = DateTime.UtcNow;
         return Result.Ok();
     }
 }

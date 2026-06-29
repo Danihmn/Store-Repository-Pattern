@@ -1,5 +1,6 @@
 using FluentResults;
 using Store.Domain.Abstractions;
+using Store.Domain.Validations;
 using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
@@ -15,34 +16,59 @@ public class Customer : Entity
         Name = name;
         Email = email;
         Phone = phone;
-
-        base.CreatedAt = DateTime.UtcNow;
-        base.UpdatedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public static Result<Customer> Create (string name, string email, string phone)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return Result.Fail<Customer>("Name cannot be empty");
+        var errors = new List<IError>();
 
-        if (string.IsNullOrWhiteSpace(email))
-            return Result.Fail<Customer>("Email cannot be empty");
-
-        if (string.IsNullOrWhiteSpace(phone))
-            return Result.Fail<Customer>("Phone cannot be empty");
+        errors.NotEmpty(name, "InvalidName", "Name cannot be empty");
 
         var emailResult = Email.Create(email);
         var phoneResult = Phone.Create(phone);
 
+        emailResult.AddErrorsTo(errors);
+        phoneResult.AddErrorsTo(errors);
+
+        if (errors.Count > 0) return Result.Fail<Customer>(errors);
+
         return Result.Ok(new Customer(name, emailResult.Value, phoneResult.Value));
     }
 
-    public void UpdateCustomer (string? name = null, string? email = null, string? phone = null)
+    public Result UpdateCustomer (string? name = null, string? email = null, string? phone = null)
     {
-        Name = name ?? Name;
-        Email = email != null ? Email.Create(email).Value : Email;
-        Phone = phone != null ? Phone.Create(phone).Value : Phone;
+        var errors = new List<IError>();
 
-        base.UpdatedAt = DateTime.UtcNow;
+        Email? emailValue = null;
+        Phone? phoneValue = null;
+
+        if (email != null)
+        {
+            var emailResult = Email.Create(email);
+
+            emailResult.AddErrorsTo(errors);
+            emailValue = emailResult.IsFailed ? null : emailResult.Value;
+        }
+
+        if (phone != null)
+        {
+            var phoneResult = Phone.Create(phone);
+
+            phoneResult.AddErrorsTo(errors);
+            phoneValue = phoneResult.IsFailed ? null : phoneResult.Value;
+        }
+
+        errors.NotEmptyIfProvided(name, "InvalidName", "Name cannot be empty");
+
+        if (errors.Count > 0) return Result.Fail(errors);
+
+        Name = name ?? Name;
+        Email = emailValue ?? Email;
+        Phone = phoneValue ?? Phone;
+        UpdatedAt = DateTime.UtcNow;
+
+        return Result.Ok();
     }
 }

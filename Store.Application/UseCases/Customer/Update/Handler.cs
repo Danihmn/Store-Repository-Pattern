@@ -13,7 +13,10 @@ public sealed class Handler (ICustomerRepository repository) : IRequestHandler<C
         if (customer is null)
             return Result.Fail<Response>("Customer not found");
 
-        customer.UpdateCustomer(request.Name, request.Email, request.Phone);
+        var updateResult = customer.UpdateCustomer(request.Name, request.Email, request.Phone);
+
+        if (updateResult.IsFailed)
+            return Result.Fail<Response>(updateResult.Errors);
 
         var updated = await repository.UpdateAsync(customer, cancellationToken);
 

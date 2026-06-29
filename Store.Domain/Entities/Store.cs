@@ -1,5 +1,6 @@
 using FluentResults;
 using Store.Domain.Abstractions;
+using Store.Domain.Validations;
 using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
@@ -19,25 +20,20 @@ public class Store : Entity
         Cnpj = cnpj;
         Active = active;
         AddressId = addressId;
-
-        base.CreatedAt = DateTime.UtcNow;
-        base.UpdatedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public static Result<Store> Create (string legalName, string cnpj, Guid addressId, string? tradeName = null, bool active = true)
     {
         var errors = new List<IError>();
 
-        if (string.IsNullOrWhiteSpace(legalName))
-            errors.Add(new Abstractions.Error("InvalidLegalName", "LegalName cannot be empty"));
-
-        if (addressId == Guid.Empty)
-            errors.Add(new Abstractions.Error("InvalidAddressId", "AddressId cannot be empty"));
+        errors.NotEmpty(legalName, "InvalidLegalName", "LegalName cannot be empty");
+        errors.NotEmpty(addressId, "InvalidAddressId", "AddressId cannot be empty");
 
         var cnpjResult = Document.Create(cnpj);
 
-        if (cnpjResult.IsFailed)
-            errors.AddRange(cnpjResult.Errors);
+        cnpjResult.AddErrorsTo(errors);
 
         if (errors.Count > 0)
             return Result.Fail<Store>(errors);
@@ -50,31 +46,26 @@ public class Store : Entity
         var errors = new List<IError>();
         Document newCnpj = Cnpj;
 
-        if (legalName != null && string.IsNullOrWhiteSpace(legalName))
-            errors.Add(new Abstractions.Error("InvalidLegalName", "LegalName cannot be empty"));
-
-        if (addressId != null && addressId == Guid.Empty)
-            errors.Add(new Abstractions.Error("InvalidAddressId", "AddressId cannot be empty"));
+        errors.NotEmptyIfProvided(legalName, "InvalidLegalName", "LegalName cannot be empty");
+        errors.NotEmptyIfProvided(addressId, "InvalidAddressId", "AddressId cannot be empty");
 
         if (cnpj != null)
         {
             var cnpjResult = Document.Create(cnpj);
-            if (cnpjResult.IsFailed)
-                errors.AddRange(cnpjResult.Errors);
-            else
-                newCnpj = cnpjResult.Value;
+            cnpjResult.AddErrorsTo(errors);
+
+            if (cnpjResult.IsSuccess) newCnpj = cnpjResult.Value;
         }
 
-        if (errors.Count > 0)
-            return Result.Fail(errors);
+        if (errors.Count > 0) return Result.Fail(errors);
 
         LegalName = legalName ?? LegalName;
         TradeName = tradeName ?? TradeName;
         Active = active ?? Active;
         AddressId = addressId ?? AddressId;
         Cnpj = newCnpj;
+        UpdatedAt = DateTime.UtcNow;
 
-        base.UpdatedAt = DateTime.UtcNow;
         return Result.Ok();
     }
 }

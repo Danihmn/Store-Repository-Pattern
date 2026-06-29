@@ -1,5 +1,6 @@
 using FluentResults;
 using Store.Domain.Abstractions;
+using Store.Domain.Validations;
 using Store.Domain.ValueObjects;
 
 namespace Store.Domain.Entities;
@@ -17,31 +18,23 @@ public class Address : Entity
         City = city;
         State = state;
         ZipCode = zipCode;
-
-        base.CreatedAt = DateTime.UtcNow;
-        base.UpdatedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public static Result<Address> Create (string street, string city, string state, string zipCode)
     {
         var errors = new List<IError>();
 
-        if (string.IsNullOrWhiteSpace(street))
-            errors.Add(new Abstractions.Error("InvalidStreet", "Street cannot be empty"));
-
-        if (string.IsNullOrWhiteSpace(city))
-            errors.Add(new Abstractions.Error("InvalidCity", "City cannot be empty"));
-
-        if (string.IsNullOrWhiteSpace(state))
-            errors.Add(new Abstractions.Error("InvalidState", "State cannot be empty"));
+        errors.NotEmpty(street, "InvalidStreet", "Street cannot be empty");
+        errors.NotEmpty(city, "InvalidCity", "City cannot be empty");
+        errors.NotEmpty(state, "InvalidState", "State cannot be empty");
 
         var zipCodeResult = ZipCode.Create(zipCode);
 
-        if (zipCodeResult.IsFailed)
-            errors.AddRange(zipCodeResult.Errors);
+        zipCodeResult.AddErrorsTo(errors);
 
-        if (errors.Count > 0)
-            return Result.Fail<Address>(errors);
+        if (errors.Count > 0) return Result.Fail<Address>(errors);
 
         return Result.Ok(new Address(street, city, state, zipCodeResult.Value));
     }
@@ -55,10 +48,9 @@ public class Address : Entity
         {
             var zipCodeResult = ZipCode.Create(zipCode);
 
-            if (zipCodeResult.IsFailed)
-                errors.AddRange(zipCodeResult.Errors);
-            else
-                newZipCode = zipCodeResult.Value;
+            zipCodeResult.AddErrorsTo(errors);
+
+            if (zipCodeResult.IsSuccess) newZipCode = zipCodeResult.Value;
         }
 
         if (errors.Count > 0)
@@ -68,8 +60,8 @@ public class Address : Entity
         City = city ?? City;
         State = state ?? State;
         ZipCode = newZipCode!;
+        UpdatedAt = DateTime.UtcNow;
 
-        base.UpdatedAt = DateTime.UtcNow;
         return Result.Ok();
     }
 }

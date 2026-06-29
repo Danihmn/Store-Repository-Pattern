@@ -1,5 +1,6 @@
 using FluentResults;
 using Store.Domain.Abstractions;
+using Store.Domain.Validations;
 
 namespace Store.Domain.Entities;
 
@@ -14,23 +15,17 @@ public class Product : Entity
         Description = description;
         UnitPrice = unitPrice;
         Stock = stock;
-
-        base.CreatedAt = DateTime.UtcNow;
-        base.UpdatedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public static Result<Product> Create (string description, decimal unitPrice, int? stock = null)
     {
         var errors = new List<IError>();
 
-        if (string.IsNullOrWhiteSpace(description))
-            errors.Add(new Abstractions.Error("InvalidDescription", "Description cannot be empty"));
-
-        if (unitPrice <= 0)
-            errors.Add(new Abstractions.Error("InvalidUnitPrice", "UnitPrice must be greater than 0"));
-
-        if (stock < 0)
-            errors.Add(new Abstractions.Error("InvalidStock", "Stock cannot be negative"));
+        errors.NotEmpty(description, "InvalidDescription", "Description cannot be empty");
+        errors.GreaterThanZero(unitPrice, "InvalidUnitPrice", "UnitPrice must be greater than 0");
+        errors.NotNegative(stock, "InvalidStock", "Stock cannot be negative");
 
         if (errors.Count > 0)
             return Result.Fail<Product>(errors);
@@ -42,23 +37,17 @@ public class Product : Entity
     {
         var errors = new List<IError>();
 
-        if (description != null && string.IsNullOrWhiteSpace(description))
-            errors.Add(new Abstractions.Error("InvalidDescription", "Description cannot be empty"));
+        errors.NotEmptyIfProvided(description, "InvalidDescription", "Description cannot be empty");
+        errors.GreaterThanZero(unitPrice, "InvalidUnitPrice", "UnitPrice must be greater than 0");
+        errors.NotNegative(stock, "InvalidStock", "Stock cannot be negative");
 
-        if (unitPrice != null && unitPrice <= 0)
-            errors.Add(new Abstractions.Error("InvalidUnitPrice", "UnitPrice must be greater than 0"));
-
-        if (stock < 0)
-            errors.Add(new Abstractions.Error("InvalidStock", "Stock cannot be negative"));
-
-        if (errors.Count > 0)
-            return Result.Fail(errors);
+        if (errors.Count > 0) return Result.Fail(errors);
 
         Description = description ?? Description;
         UnitPrice = unitPrice ?? UnitPrice;
         Stock = stock ?? Stock;
+        UpdatedAt = DateTime.UtcNow;
 
-        base.UpdatedAt = DateTime.UtcNow;
         return Result.Ok();
     }
 }
