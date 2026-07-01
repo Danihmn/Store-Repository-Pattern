@@ -1,4 +1,4 @@
-﻿using Caelum.Stella.CSharp.Validation;
+﻿using BrDocuments;
 using FluentResults;
 using Store.Domain.Abstractions;
 using Store.Domain.Enums;
@@ -7,9 +7,6 @@ namespace Store.Domain.ValueObjects;
 
 public class Document : ValueObject
 {
-    private static readonly CPFValidator _cpfValidator = new();
-    private static readonly CNPJValidator _cnpjValidator = new();
-
     public string Value { get; }
     public EDocumentType Type { get; }
 
@@ -44,8 +41,8 @@ public class Document : ValueObject
         var type = typeResult.Value;
 
         var isValid = type == EDocumentType.CPF
-            ? _cpfValidator.IsValid(clean)
-            : _cnpjValidator.IsValid(clean);
+            ? Cpf.IsValid(clean)
+            : Cnpj.IsValid(clean);
 
         if (!isValid)
             return Result.Fail($"{type} is invalid.");
